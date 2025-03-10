@@ -2,6 +2,7 @@ package controller;
 
 import dal.OrderDAO;
 import dal.OrderDetailDAO;
+import dal.ProductDAO;
 import model.Order;
 import model.OrderDetail;
 import model.User;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.Product;
 
 @WebServlet(name = "OrderDetailServlet", urlPatterns = {"/order-detail"})
 public class OrderDetailServlet extends HttpServlet {
@@ -51,21 +53,25 @@ public class OrderDetailServlet extends HttpServlet {
                 return;
             }
             
-            // Lấy chi tiết đơn hàng
+            // Lấy thông tin chi tiết đơn hàng đầy đủ (bao gồm thông tin giao hàng)
             OrderDetailDAO orderDetailDAO = new OrderDetailDAO();
-            List<OrderDetail> orderDetails = orderDetailDAO.getByOrderId(orderId);
+            Order orderWithShipping = orderDetailDAO.getOrderDetails(orderId);
             
-            // Lấy thông tin sản phẩm cho mỗi chi tiết đơn hàng
-            for (OrderDetail detail : orderDetails) {
-                // Giả sử có một ProductDAO để lấy thông tin sản phẩm
-                // ProductDAO productDAO = new ProductDAO();
-                // Product product = productDAO.getById(detail.getProductId());
-                // detail.setProductName(product.getName());
-                // detail.setProductImage(product.getImageUrl());
-                
-                // Nếu bạn đã có thông tin này từ OrderDetailDAO, không cần đoạn code trên
+            // Gán thông tin đầy đủ vào biến order
+            if (orderWithShipping != null) {
+                order = orderWithShipping;
             }
             
+            // Lấy danh sách sản phẩm trong đơn hàng
+            List<OrderDetail> orderDetails = orderDetailDAO.getByOrderId(orderId);
+            ProductDAO productDAO = new ProductDAO();
+    for (OrderDetail detail : orderDetails) {
+        Product product = productDAO.getProductById(detail.getProductId());
+        if (product != null) {
+            detail.setProductName(product.getName());
+            detail.setProductImage(product.getImageUrl());
+        }
+    }
             // Đưa thông tin vào request
             request.setAttribute("order", order);
             request.setAttribute("orderDetails", orderDetails);

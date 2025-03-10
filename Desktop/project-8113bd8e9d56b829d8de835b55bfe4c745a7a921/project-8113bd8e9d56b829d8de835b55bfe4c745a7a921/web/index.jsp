@@ -524,11 +524,14 @@
                                         <i class="bi bi-person-circle"></i> ${sessionScope.user.fullName}
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="profile.jsp">Tài khoản của tôi</a></li>
-                                        <li><a class="dropdown-item" href="orders.jsp">Đơn hàng</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="logout">Đăng xuất</a></li>
-                                    </ul>
+    <c:if test="${sessionScope.isAdmin == true || sessionScope.isStaff == true}">
+        <li><a class="dropdown-item" href="admin.jsp">Quản lý</a></li>
+    </c:if>
+    <li><a class="dropdown-item" href="my-orders">Đơn hàng</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="logout">Đăng xuất</a></li>
+</ul>
+
                                 </li>
                             </c:otherwise>
                         </c:choose>

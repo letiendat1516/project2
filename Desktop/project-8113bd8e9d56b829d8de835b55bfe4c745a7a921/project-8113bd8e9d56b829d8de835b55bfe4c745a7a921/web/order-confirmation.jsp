@@ -94,7 +94,7 @@
                         <p class="card-text mb-4">Một email xác nhận đã được gửi đến địa chỉ email của bạn.</p>
                         
                         <div class="d-grid gap-2 col-md-6 mx-auto">
-                            <a href="user-orders" class="btn btn-outline-primary mb-2">
+                            <a href="my-orders" class="btn btn-outline-primary mb-2">
                                 <i class="bi bi-bag"></i> Xem đơn hàng của tôi
                             </a>
                             <a href="home" class="btn btn-primary">

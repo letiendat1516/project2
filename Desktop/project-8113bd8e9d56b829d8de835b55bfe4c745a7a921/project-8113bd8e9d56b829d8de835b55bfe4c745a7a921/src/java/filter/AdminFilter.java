@@ -8,7 +8,14 @@ import jakarta.servlet.http.HttpSession;
 import model.User;
 import java.io.IOException;
 
-@WebFilter(filterName = "AdminFilter", urlPatterns = {"/admin/*", "/admin.jsp"})
+@WebFilter(filterName = "AdminFilter", urlPatterns = {
+    "/admin/*",
+    "/admin.jsp",
+    "/admin_categories",
+    "/admin_products",
+    "/admin_orders",
+    "/admin_users"
+})
 public class AdminFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -29,8 +36,9 @@ public class AdminFilter implements Filter {
 
         User user = (User) session.getAttribute("user");
         System.out.println("User roleId: " + user.getRoleId());
-
-        if (user.getRoleId() != 1) { // Kiểm tra roleId = 1 (Admin)
+        
+        // Kiểm tra quyền admin bằng phương thức isAdmin()
+        if (!user.isAdmin()&& !user.isStaff()) {
             System.out.println("Access denied - not an admin role");
             res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
             return;

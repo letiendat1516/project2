@@ -12,7 +12,7 @@ public class OrderDetail {
     // Thêm trường không lưu trong DB nhưng hữu ích khi hiển thị
     private String productName; // Tên sản phẩm
     private String productImage; // Hình ảnh sản phẩm
-
+    
     // Getters và Setters
     public int getOrderDetailId() {
         return orderDetailId;

@@ -24,9 +24,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import model.Product;
 
 @WebServlet(name = "CheckoutServlet", urlPatterns = {"/checkout"})
 public class CheckoutServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -69,11 +71,55 @@ public class CheckoutServlet extends HttpServlet {
 
             // Chuyển đổi JSON thành đối tượng Java
             Gson gson = new Gson();
-            Type cartListType = new TypeToken<List<CartItem>>(){}.getType();
+            Type cartListType = new TypeToken<List<CartItem>>() {
+            }.getType();
             List<CartItem> cart = gson.fromJson(cartData, cartListType);
-            
+
             if (cart == null || cart.isEmpty()) {
                 request.setAttribute("errorMessage", "Giỏ hàng trống. Vui lòng thêm sản phẩm vào giỏ hàng.");
+                request.getRequestDispatcher("checkout.jsp").forward(request, response);
+                return;
+            }
+            ProductDAO productDAO = new ProductDAO();
+            List<String> outOfStockItems = new ArrayList<>();
+
+            for (CartItem item : cart) {
+                int availableStock = productDAO.getProductStockById(item.getProductId());
+                if (item.getQuantity() > availableStock) {
+                    // Sản phẩm không đủ tồn kho
+                    Product product = productDAO.getProductById(item.getProductId());
+                    String productName = product != null ? product.getName() : "Sản phẩm #" + item.getProductId();
+                    outOfStockItems.add(productName + " (có sẵn: " + availableStock + ", yêu cầu: " + item.getQuantity() + ")");
+                }
+            }
+
+            // Nếu có sản phẩm hết hàng, thông báo lỗi và không cho phép đặt hàng
+            if (!outOfStockItems.isEmpty()) {
+                StringBuilder errorMsg = new StringBuilder("Sản phẩm không đủ số lượng trong kho: ");
+                for (int i = 0; i < outOfStockItems.size(); i++) {
+                    if (i > 0) {
+                        errorMsg.append(", ");
+                    }
+                    errorMsg.append(outOfStockItems.get(i));
+                }
+                request.setAttribute("errorMessage", errorMsg.toString());
+                request.getRequestDispatcher("checkout.jsp").forward(request, response);
+                return;
+            }
+
+            // Lấy thông tin giao hàng từ form
+            String fullName = request.getParameter("fullName");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+            String address = request.getParameter("address");
+
+            // Kiểm tra dữ liệu
+            if (fullName == null || fullName.trim().isEmpty()
+                    || email == null || email.trim().isEmpty()
+                    || phone == null || phone.trim().isEmpty()
+                    || address == null || address.trim().isEmpty()) {
+
+                request.setAttribute("errorMessage", "Vui lòng điền đầy đủ thông tin giao hàng.");
                 request.getRequestDispatcher("checkout.jsp").forward(request, response);
                 return;
             }
@@ -85,12 +131,10 @@ public class CheckoutServlet extends HttpServlet {
             order.setStatus("Pending");
             order.setCreatedAt(new Date());
 
-            // Lấy thông tin giao hàng từ form
-            String address = request.getParameter("address");
-            if (address != null && !address.trim().isEmpty()) {
-                // Lưu thông tin giao hàng nếu cần
-                // Có thể cập nhật địa chỉ người dùng nếu cần
-            }
+            // Lưu thông tin giao hàng
+            order.setShippingName(fullName);
+            order.setShippingPhone(phone);
+            order.setShippingAddress(address);
 
             // Lưu đơn hàng và lấy order ID
             OrderDAO orderDAO = new OrderDAO();
@@ -99,7 +143,6 @@ public class CheckoutServlet extends HttpServlet {
             if (orderId > 0) {
                 // Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ hàng
                 OrderDetailDAO orderDetailDAO = new OrderDetailDAO();
-                ProductDAO productDAO = new ProductDAO();
 
                 for (CartItem item : cart) {
                     OrderDetail detail = new OrderDetail();
@@ -137,11 +180,11 @@ public class CheckoutServlet extends HttpServlet {
     // Tính tổng tiền đơn hàng
     private BigDecimal calculateTotal(List<CartItem> cart) {
         BigDecimal total = BigDecimal.ZERO;
-        
+
         for (CartItem item : cart) {
             total = total.add(item.getPrice().multiply(new BigDecimal(item.getQuantity())));
         }
-        
+
         return total;
     }
 }

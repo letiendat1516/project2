@@ -9,7 +9,33 @@ public class Order {
     private BigDecimal totalPrice;
     private String status;
     private Date createdAt;
+    private String shippingAddress;
+    private String shippingPhone;
+    private String shippingName;
 
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
+    public String getShippingPhone() {
+        return shippingPhone;
+    }
+
+    public void setShippingPhone(String shippingPhone) {
+        this.shippingPhone = shippingPhone;
+    }
+
+    public String getShippingName() {
+        return shippingName;
+    }
+
+    public void setShippingName(String shippingName) {
+        this.shippingName = shippingName;
+    }
     // Getters và Setters
     public int getOrderId() {
         return orderId;
