@@ -638,7 +638,7 @@
                                                     <p class="stock out-stock">Hết hàng</p>
                                                 </c:otherwise>
                                             </c:choose>
-
+                                                    <p class="sold-count">Đã bán: ${product.soldCount}</p>
                                             <!-- Nút thêm vào giỏ -->
                                             <c:choose>
                                                 <c:when test="${product.stockQuantity > 0}">

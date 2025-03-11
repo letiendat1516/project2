@@ -1,5 +1,6 @@
 package controller;
 
+import dal.OrderDetailDAO;
 import dal.ProductDAO;
 import model.Product;
 import java.io.IOException;
@@ -10,6 +11,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "ProductServlet", urlPatterns = {"/products"})
 public class ProductServlet extends HttpServlet {
@@ -19,6 +23,15 @@ public class ProductServlet extends HttpServlet {
             throws ServletException, IOException {
 
         ProductDAO productDAO = new ProductDAO();
+        OrderDetailDAO orderDetailDAO = new OrderDetailDAO(); // Khởi tạo OrderDetailDAO
+
+        // Cập nhật số lượng bán cho tất cả sản phẩm
+        try {
+            productDAO.updateSoldCounts(); // Cập nhật số lượng bán
+        } catch (Exception e) {
+            System.err.println("Error updating sold counts: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // Lấy tham số phân trang (nếu có)
         String pageStr = request.getParameter("page");
@@ -83,6 +96,29 @@ public class ProductServlet extends HttpServlet {
         // Lấy danh sách sản phẩm nổi bật để hiển thị ở đầu trang
         List<Product> featuredProducts = productDAO.getFeaturedProducts();
 
+        // Lấy số lượng bán cho tất cả sản phẩm
+        // Lưu số lượng bán vào mỗi sản phẩm
+        for (Product product : products) {
+            int soldCount = 0;
+            try {
+                soldCount = orderDetailDAO.getProductSalesCount(product.getProductId());
+            } catch (Exception ex) {
+                Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            product.setSoldCount(soldCount);
+        }
+
+        // Cũng làm tương tự cho featuredProducts
+        for (Product product : featuredProducts) {
+            int soldCount = 0;
+            try {
+                soldCount = orderDetailDAO.getProductSalesCount(product.getProductId());
+            } catch (Exception ex) {
+                Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            product.setSoldCount(soldCount);
+        }
+
         // Lấy danh sách tất cả các danh mục từ database
         Map<Integer, String> categories = productDAO.getAllCategories();
         
@@ -101,5 +137,10 @@ public class ProductServlet extends HttpServlet {
 
         // Chuyển hướng đến trang product.jsp
         request.getRequestDispatcher("product.jsp").forward(request, response);
+    }
+
+    // Phương thức để cập nhật số lượng bán cho tất cả sản phẩm
+    private void updateSoldCountsForAllProducts(ProductDAO productDAO) throws Exception {
+        productDAO.updateSoldCounts(); // Gọi phương thức cập nhật số lượng bán
     }
 }

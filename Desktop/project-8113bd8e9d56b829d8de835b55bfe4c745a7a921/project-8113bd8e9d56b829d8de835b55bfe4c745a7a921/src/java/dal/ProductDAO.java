@@ -8,54 +8,66 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import model.OrderDetail;
 
 public class ProductDAO {
 
-    private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
-        Product product = new Product();
-        product.setProductId(rs.getInt("product_id"));
-        product.setName(rs.getString("name"));
-        product.setDescription(rs.getString("description"));
-        product.setPrice(rs.getBigDecimal("price"));
-        product.setStockQuantity(rs.getInt("stock_quantity"));
-        product.setCategoryId(rs.getInt("category_id"));
-        product.setImageUrl(rs.getString("image_url"));
-        product.setCreatedAt(rs.getTimestamp("created_at"));
-        product.setCategoryName(rs.getString("category_name"));
+private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
+    Product product = new Product();
+    product.setProductId(rs.getInt("product_id"));
+    product.setName(rs.getString("name"));
+    product.setDescription(rs.getString("description"));
+    product.setPrice(rs.getBigDecimal("price"));
+    product.setStockQuantity(rs.getInt("stock_quantity"));
+    product.setCategoryId(rs.getInt("category_id"));
+    product.setImageUrl(rs.getString("image_url"));
+    product.setCreatedAt(rs.getTimestamp("created_at"));
+    product.setCategoryName(rs.getString("category_name"));
 
-        // Thêm các trường mới cho sản phẩm nổi bật
-        try {
-            // Kiểm tra nếu cột tồn tại trong ResultSet
-            rs.findColumn("is_featured");
-            product.setIsFeatured(rs.getBoolean("is_featured"));
-
-            // Cột featured_order có thể NULL
-            int featuredOrder = rs.getInt("featured_order");
-            if (!rs.wasNull()) {
-                product.setFeaturedOrder(featuredOrder);
-            }
-
-            // Cột featured_until có thể NULL
-            Date featuredUntil = rs.getDate("featured_until");
-            if (featuredUntil != null) {
-                product.setFeaturedUntil(featuredUntil);
-            }
-        } catch (SQLException e) {
-            // Nếu cột không tồn tại, bỏ qua lỗi
-            // Điều này giúp phương thức vẫn hoạt động với các truy vấn không chứa các cột mới
+    // Thêm đoạn này để lấy số lượng bán
+    try {
+        if (rs.findColumn("sold_count") > 0) {
+            product.setSoldCount(rs.getInt("sold_count"));
         }
-
-        // Thêm tên danh mục nếu có
-        try {
-            if (rs.findColumn("category_name") > 0) {
-                product.setCategoryName(rs.getString("category_name"));
-            }
-        } catch (SQLException e) {
-            // Bỏ qua nếu không có cột category_name
-        }
-
-        return product;
+    } catch (SQLException e) {
+        // Nếu không có cột sold_count, mặc định là 0
+        product.setSoldCount(0);
     }
+
+    // Thêm các trường mới cho sản phẩm nổi bật
+    try {
+        // Kiểm tra nếu cột tồn tại trong ResultSet
+        rs.findColumn("is_featured");
+        product.setIsFeatured(rs.getBoolean("is_featured"));
+
+        // Cột featured_order có thể NULL
+        int featuredOrder = rs.getInt("featured_order");
+        if (!rs.wasNull()) {
+            product.setFeaturedOrder(featuredOrder);
+        }
+
+        // Cột featured_until có thể NULL
+        Date featuredUntil = rs.getDate("featured_until");
+        if (featuredUntil != null) {
+            product.setFeaturedUntil(featuredUntil);
+        }
+    } catch (SQLException e) {
+        // Nếu cột không tồn tại, bỏ qua lỗi
+        // Điều này giúp phương thức vẫn hoạt động với các truy vấn không chứa các cột mới
+    }
+
+    // Thêm tên danh mục nếu có
+    try {
+        if (rs.findColumn("category_name") > 0) {
+            product.setCategoryName(rs.getString("category_name"));
+        }
+    } catch (SQLException e) {
+        // Bỏ qua nếu không có cột category_name
+    }
+
+    return product;
+}
+
 
     // Phương thức mới để lấy sản phẩm nổi bật thực sự
     public List<Product> getFeaturedProducts() {
@@ -241,56 +253,60 @@ public class ProductDAO {
     }
 
     public List<Product> getAllProductsWithPagination(int page, int productsPerPage, String sortBy) {
-        List<Product> products = new ArrayList<>();
-        String query = "SELECT p.*, c.category_name FROM Products p "
-                + "LEFT JOIN Categories c ON p.category_id = c.category_id";
+    List<Product> products = new ArrayList<>();
+    String query = "SELECT p.*, c.category_name FROM Products p " +
+                   "LEFT JOIN Categories c ON p.category_id = c.category_id";
 
-        // Thêm điều kiện sắp xếp
-        if (sortBy != null) {
-            switch (sortBy) {
-                case "price_asc":
-                    query += " ORDER BY p.price ASC";
-                    break;
-                case "price_desc":
-                    query += " ORDER BY p.price DESC";
-                    break;
-                case "name_asc":
-                    query += " ORDER BY p.name ASC";
-                    break;
-                case "newest":
-                    query += " ORDER BY p.created_at DESC";
-                    break;
-                default:
-                    // Mặc định sắp xếp theo đề xuất (sản phẩm nổi bật trước)
-                    query += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
-                            + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
-            }
-        } else {
-            // Mặc định sắp xếp theo đề xuất
-            query += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
-                    + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
+    // Thêm điều kiện sắp xếp
+    if (sortBy != null) {
+        switch (sortBy) {
+            case "price_asc":
+                query += " ORDER BY p.price ASC";
+                break;
+            case "price_desc":
+                query += " ORDER BY p.price DESC";
+                break;
+            case "name_asc":
+                query += " ORDER BY p.name ASC";
+                break;
+            case "newest":
+                query += " ORDER BY p.created_at DESC";
+                break;
+            case "best_selling":
+                query += " ORDER BY p.sold_count DESC, p.created_at DESC"; // Sắp xếp theo cột sold_count đã có
+                break;
+            default:
+                // Mặc định sắp xếp theo đề xuất (sản phẩm nổi bật trước)
+                query += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
+                        + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
         }
-
-        // Thêm phân trang
-        int offset = (page - 1) * productsPerPage;
-        query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setInt(1, offset);
-            ps.setInt(2, productsPerPage);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                products.add(mapResultSetToProduct(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return products;
+    } else {
+        // Mặc định sắp xếp theo đề xuất
+        query += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
+                + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
     }
+
+    // Thêm phân trang
+    int offset = (page - 1) * productsPerPage;
+    query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+    try (Connection conn = new DBContext().getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        ps.setInt(1, offset);
+        ps.setInt(2, productsPerPage);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            products.add(mapResultSetToProduct(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return products;
+}
 
     // Thêm phương thức để lấy tổng số sản phẩm
     public int getTotalProducts() {
@@ -459,61 +475,69 @@ public class ProductDAO {
     }
 
     public List<Product> getProductsByCategoryAndSort(Integer categoryId, String sortBy) {
-        List<Product> products = new ArrayList<>();
+    List<Product> products = new ArrayList<>();
 
-        // Xây dựng câu query SQL với điều kiện và ORDER BY
-        String sql = "SELECT p.*, c.category_name FROM Products p "
-                + "LEFT JOIN Categories c ON p.category_id = c.category_id";
+    // Xây dựng câu query SQL với điều kiện và ORDER BY
+    String sql = "SELECT p.*, c.category_name, " +
+                 "(SELECT ISNULL(SUM(od.quantity), 0) " +
+                 " FROM OrderDetails od " +
+                 " JOIN Orders o ON od.order_id = o.order_id " +
+                 " WHERE od.product_id = p.product_id AND o.status = 'Delivered') AS sold_count " +
+                 "FROM Products p " +
+                 "LEFT JOIN Categories c ON p.category_id = c.category_id";
 
-        if (categoryId != null) {
-            sql += " WHERE p.category_id = ?";
-        }
-
-        if (sortBy != null) {
-            switch (sortBy) {
-                case "price_asc":
-                    sql += " ORDER BY p.price ASC";
-                    break;
-                case "price_desc":
-                    sql += " ORDER BY p.price DESC";
-                    break;
-                case "name_asc":
-                    sql += " ORDER BY p.name ASC";
-                    break;
-                case "newest":
-                    sql += " ORDER BY p.created_at DESC";
-                    break;
-                default:
-                    // Mặc định sắp xếp theo đề xuất
-                    sql += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
-                            + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
-                    break;
-            }
-        } else {
-            // Mặc định sắp xếp theo đề xuất
-            sql += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
-                    + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
-        }
-
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            // Thiết lập tham số nếu có categoryId
-            if (categoryId != null) {
-                ps.setInt(1, categoryId);
-            }
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                products.add(mapResultSetToProduct(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return products;
+    if (categoryId != null) {
+        sql += " WHERE p.category_id = ?";
     }
+
+    if (sortBy != null) {
+        switch (sortBy) {
+            case "price_asc":
+                sql += " ORDER BY p.price ASC";
+                break;
+            case "price_desc":
+                sql += " ORDER BY p.price DESC";
+                break;
+            case "name_asc":
+                sql += " ORDER BY p.name ASC";
+                break;
+            case "newest":
+                sql += " ORDER BY p.created_at DESC";
+                break;
+            case "best_selling":
+                sql += " ORDER BY sold_count DESC"; // Sắp xếp theo sold_count
+                break;
+            default:
+                // Mặc định sắp xếp theo đề xuất
+                sql += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
+                        + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
+                break;
+        }
+    } else {
+        // Mặc định sắp xếp theo đề xuất
+        sql += " ORDER BY CASE WHEN p.is_featured = 1 AND (p.featured_until IS NULL OR p.featured_until >= GETDATE()) "
+                + "THEN 0 ELSE 1 END, p.featured_order ASC, p.created_at DESC";
+    }
+
+    try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        // Thiết lập tham số nếu có categoryId
+        if (categoryId != null) {
+            ps.setInt(1, categoryId);
+        }
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            products.add(mapResultSetToProduct(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return products;
+}
 
     public boolean updateStock(int productId, int quantity) {
         String sql = "UPDATE Products SET stock_quantity = stock_quantity - ? WHERE product_id = ?";
@@ -1105,5 +1129,32 @@ public boolean checkAndUpdateStock(int productId, int quantity) {
     }
 }
 
+// Trong ProductDAO
+/**
+ * Cập nhật số lượng bán của sản phẩm
+ * @param productId ID sản phẩm
+ * @param soldCount Số lượng đã bán
+ * @return true nếu cập nhật thành công
+ */
+public boolean updateSoldCounts() throws Exception {
+    String sql = "UPDATE Products SET sold_count = " +
+                "(SELECT ISNULL(SUM(od.quantity), 0) " +
+                "FROM OrderDetails od " +
+                "JOIN Orders o ON od.order_id = o.order_id " +
+                "WHERE od.product_id = Products.product_id AND o.status = 'Delivered')";
+    
+    Connection conn = null;
+    PreparedStatement ps = null;
+    
+    try {
+        conn = new DBContext().getConnection();
+        ps = conn.prepareStatement(sql);
+        int rowsAffected = ps.executeUpdate();
+        return rowsAffected > 0;
+    } finally {
+        if (ps != null) ps.close();
+        if (conn != null) conn.close();
+    }
+}
 
 }

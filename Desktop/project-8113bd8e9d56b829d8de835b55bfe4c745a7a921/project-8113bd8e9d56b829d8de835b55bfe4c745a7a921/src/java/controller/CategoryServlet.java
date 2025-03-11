@@ -68,6 +68,9 @@ public class CategoryServlet extends HttpServlet {
 
     private void addCategory(HttpServletRequest request, HttpServletResponse response, CategoryDAO categoryDAO, HttpSession session)
             throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         String categoryName = request.getParameter("categoryName");
 
         // Validate category name
@@ -105,6 +108,9 @@ public class CategoryServlet extends HttpServlet {
 
     private void updateCategory(HttpServletRequest request, HttpServletResponse response, CategoryDAO categoryDAO, HttpSession session)
             throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         try {
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
             String categoryName = request.getParameter("categoryName");

@@ -6,7 +6,9 @@ import context.DBContext; // Giả sử bạn có class DBContext để kết n�
 import java.sql.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderDAO {
 
@@ -135,7 +137,8 @@ public class OrderDAO {
     // Cập nhật toàn bộ thông tin đơn hàng
     public boolean update(Order order) throws SQLException, Exception {
         String sql = "UPDATE Orders SET user_id = ?, total_price = ?, status = ?, "
-                + "created_at = ? WHERE order_id = ?";
+                + "created_at = ?, shipping_address = ?, shipping_phone = ?, shipping_name = ? "
+                + "WHERE order_id = ?";
         int rowsAffected = 0;
 
         try {
@@ -146,7 +149,10 @@ public class OrderDAO {
             ps.setBigDecimal(2, order.getTotalPrice());
             ps.setString(3, order.getStatus());
             ps.setTimestamp(4, new Timestamp(order.getCreatedAt().getTime()));
-            ps.setInt(5, order.getOrderId());
+            ps.setString(5, order.getShippingAddress());
+            ps.setString(6, order.getShippingPhone());
+            ps.setString(7, order.getShippingName());
+            ps.setInt(8, order.getOrderId());
 
             rowsAffected = ps.executeUpdate();
         } finally {
@@ -238,6 +244,82 @@ public class OrderDAO {
             closeResources();
         }
         return totalRevenue;
+    }
+
+    /**
+     * Lấy doanh thu hàng ngày trong khoảng thời gian
+     */
+    public List<Map<String, Object>> getDailyRevenue(Date startDate, Date endDate) throws Exception {
+        List<Map<String, Object>> result = new ArrayList<>();
+        String sql = "SELECT CONVERT(DATE, created_at) AS order_date, SUM(total_price) AS daily_revenue "
+                + "FROM Orders WHERE status = 'Delivered' AND created_at BETWEEN ? AND ? "
+                + "GROUP BY CONVERT(DATE, created_at) ORDER BY order_date";
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setTimestamp(1, new Timestamp(startDate.getTime()));
+            ps.setTimestamp(2, new Timestamp(endDate.getTime()));
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("date", rs.getDate("order_date"));
+                entry.put("revenue", rs.getBigDecimal("daily_revenue"));
+                result.add(entry);
+            }
+        } finally {
+            closeResources();
+        }
+        return result;
+    }
+
+    /**
+     * Lấy doanh thu theo tháng trong một năm
+     */
+    public List<Map<String, Object>> getMonthlyRevenue(int year) throws Exception {
+        List<Map<String, Object>> result = new ArrayList<>();
+        String sql = "SELECT MONTH(created_at) AS month, SUM(total_price) AS monthly_revenue "
+                + "FROM Orders WHERE status = 'Delivered' AND YEAR(created_at) = ? "
+                + "GROUP BY MONTH(created_at) ORDER BY month";
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, year);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("month", rs.getInt("month"));
+                entry.put("revenue", rs.getBigDecimal("monthly_revenue"));
+                result.add(entry);
+            }
+        } finally {
+            closeResources();
+        }
+        return result;
+    }
+
+    /**
+     * Lấy thống kê trạng thái đơn hàng
+     */
+    public Map<String, Integer> getOrderStatusStatistics() throws Exception {
+        Map<String, Integer> result = new HashMap<>();
+        String sql = "SELECT status, COUNT(*) AS count FROM Orders GROUP BY status";
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                result.put(rs.getString("status"), rs.getInt("count"));
+            }
+        } finally {
+            closeResources();
+        }
+        return result;
     }
 
 }

@@ -596,6 +596,7 @@
                                     <c:when test="${sortBy == 'price_desc'}">Giá: Cao Tới Thấp</c:when>
                                     <c:when test="${sortBy == 'name_asc'}">Bảng chữ cái A-Z</c:when>
                                     <c:when test="${sortBy == 'newest'}">Mới nhất</c:when>
+                                    <c:when test="${sortBy == 'best_selling'}">Bán chạy nhất</c:when>
                                     <c:otherwise>Đề Xuất</c:otherwise>
                                 </c:choose>
                             </button>
@@ -620,7 +621,12 @@
                                        href="products?sort=newest${not empty roleId ? '&role='.concat(roleId) : ''}">
                                         Mới nhất
                                     </a></li>
+                                <li><a class="dropdown-item ${sortBy == 'best_selling' ? 'active' : ''}" 
+                                       href="products?sort=best_selling${not empty roleId ? '&role='.concat(roleId) : ''}">
+                                        Bán chạy nhất
+                                    </a></li>
                             </ul>
+
                         </div>
 
                     </div>
@@ -667,6 +673,9 @@
                                             <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="₫"/>
                                         </p>
 
+                                        <!-- Hiển thị số lượng bán -->
+                                        <p class="sold-count">Đã bán: ${product.soldCount}</p> <!-- Thêm dòng này để hiển thị số lượng bán -->
+
                                         <!-- Hiển thị trạng thái tồn kho -->
                                         <c:choose>
                                             <c:when test="${product.stockQuantity > 10}">
@@ -707,6 +716,7 @@
                 </c:choose>
             </div>
         </div>
+
     </div>
 
     <!-- Phân trang - giữ nguyên không thay đổi -->

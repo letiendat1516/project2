@@ -297,6 +297,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                                <a class="nav-link animate__animated animate__fadeInLeft" href="${pageContext.request.contextPath}/admin_revenue">
+                                    <i class="bi bi-graph-up"></i>
+                                    Doanh thu
+                                </a>
+                            </li>
+                        <li class="nav-item">
                             <a class="nav-link animate__animated animate__fadeInLeft" href="${pageContext.request.contextPath}/admin_users">
                                 <i class="bi bi-people"></i>
                                 Người dùng

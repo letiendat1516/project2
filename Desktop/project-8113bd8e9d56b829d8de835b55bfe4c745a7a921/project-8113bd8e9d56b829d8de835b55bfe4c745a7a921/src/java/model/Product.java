@@ -9,24 +9,28 @@ public class Product {
     private int productId;
     private String name;
     private String description;
-    private BigDecimal price; // Đã thay đổi từ double sang BigDecimal
+    private BigDecimal price; 
     private int stockQuantity;
     private int categoryId;
     private String imageUrl;
     private Timestamp createdAt;
-
-    // Thêm các thuộc tính mới cho sản phẩm nổi bật
     private boolean isFeatured;
     private Integer featuredOrder;
     private Date featuredUntil;
     private int roleid;
     private int soldQuantity;
     private boolean featured;
-    
-    // Thêm thuộc tính categoryName
     private String categoryName;
-
-    // Constructor mặc định
+    private int soldCount; 
+    
+    public int getSoldCount() {
+        return soldCount;
+    }
+    
+    public void setSoldCount(int soldCount) {
+        this.soldCount = soldCount;
+    }
+    
     public Product() {
     }
 
