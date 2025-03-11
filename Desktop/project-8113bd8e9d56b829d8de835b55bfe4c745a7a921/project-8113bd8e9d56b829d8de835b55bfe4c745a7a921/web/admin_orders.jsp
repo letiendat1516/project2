@@ -389,9 +389,7 @@
                             <a href="${pageContext.request.contextPath}/admin_orders?action=view&id=${order.orderId}" class="btn btn-view btn-sm">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            <a href="${pageContext.request.contextPath}/admin_orders?action=edit&id=${order.orderId}" class="btn btn-edit btn-sm">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+                            
                             <button class="btn btn-delete btn-sm" onclick="confirmDelete(${order.orderId})">
                                 <i class="bi bi-trash"></i>
                             </button>

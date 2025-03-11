@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <a href="${pageContext.request.contextPath}/admin-orders" class="btn btn-secondary btn-back">
+        <a href="${pageContext.request.contextPath}/admin_orders" class="btn btn-secondary btn-back">
             <i class="bi bi-arrow-left"></i> Quay lại
         </a>
     </div>

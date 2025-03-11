@@ -52,7 +52,7 @@ public class AdminOrderServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Đã xảy ra lỗi: " + e.getMessage());
-            request.getRequestDispatcher("/admin-orders.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin_orders.jsp").forward(request, response);
         }
     }
 
@@ -80,7 +80,7 @@ public class AdminOrderServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Đã xảy ra lỗi: " + e.getMessage());
-            request.getRequestDispatcher("/admin-orders.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin_orders.jsp").forward(request, response);
         }
     }
 
@@ -123,7 +123,7 @@ public class AdminOrderServlet extends HttpServlet {
         request.setAttribute("noOfPages", noOfPages);
         request.setAttribute("currentPage", page);
 
-        request.getRequestDispatcher("/admin-orders.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin_orders.jsp").forward(request, response);
     }
 
     private void viewOrderDetails(HttpServletRequest request, HttpServletResponse response)
@@ -175,9 +175,9 @@ public class AdminOrderServlet extends HttpServlet {
             orderDAO.update(order);
 
             // Chuyển hướng về trang chi tiết
-            response.sendRedirect(request.getContextPath() + "/admin-orders?action=view&id=" + orderId);
+            response.sendRedirect(request.getContextPath() + "/admin_orders?action=view&id=" + orderId);
         } else {
-            response.sendRedirect(request.getContextPath() + "/admin-orders");
+            response.sendRedirect(request.getContextPath() + "/admin_orders");
         }
     }
 
@@ -194,7 +194,7 @@ public class AdminOrderServlet extends HttpServlet {
         if (referer != null) {
             response.sendRedirect(referer);
         } else {
-            response.sendRedirect(request.getContextPath() + "/admin-orders");
+            response.sendRedirect(request.getContextPath() + "/admin_orders");
         }
     }
 
@@ -206,6 +206,6 @@ public class AdminOrderServlet extends HttpServlet {
         orderDAO.delete(orderId);
 
         // Chuyển hướng về danh sách đơn hàng
-        response.sendRedirect(request.getContextPath() + "/admin-orders");
+        response.sendRedirect(request.getContextPath() + "/admin_orders");
     }
 }
