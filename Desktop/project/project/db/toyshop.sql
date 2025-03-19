@@ -3,14 +3,14 @@ CREATE TABLE Roles (
     role_id INT IDENTITY(1,1) PRIMARY KEY,
     role_name VARCHAR(50) NOT NULL UNIQUE
 );
-select * from Users
+select * from Orders
 
 -- 2. Tạo bảng Users (phụ thuộc vào Roles)
 CREATE TABLE Users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
     full_name NVARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    phone VARCHAR(15) UNIQUE NOT NULL,
+    phone VARCHAR(10) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     address NVARCHAR(MAX),
     role_id INT,
@@ -20,12 +20,13 @@ CREATE TABLE Users (
 );
 
 
+
 -- 3. Tạo bảng Categories (bảng độc lập)
 CREATE TABLE Categories (
     category_id INT IDENTITY(1,1) PRIMARY KEY,
     category_name NVARCHAR(100) NOT NULL UNIQUE
 );
-update orders set status = 'Delivered'
+update Users set phone = 'Delivered'
 where order_id = 11
 
 -- 4. Tạo bảng Products (phụ thuộc vào Categories)

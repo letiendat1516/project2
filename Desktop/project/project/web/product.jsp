@@ -1,7 +1,5 @@
 <%-- 
-    Document   : product
-    Created on : Feb 20, 2025, 4:37:00 PM
-    Author     : IUHADU
+    Author     : DAT, KHANH, LINH
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*" %>

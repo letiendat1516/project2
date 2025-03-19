@@ -1,3 +1,4 @@
+//Author: DAT, KHANH, LINH
 package model;
 
 import java.sql.Timestamp;

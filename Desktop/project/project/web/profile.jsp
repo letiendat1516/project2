@@ -1,9 +1,6 @@
 <%-- 
-    Document   : profile
-    Created on : Mar 12, 2025, 2:19:41 PM
-    Author     : IUHADU
+    Author     : DAT, DANG
 --%>
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>

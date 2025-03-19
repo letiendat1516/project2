@@ -1,7 +1,5 @@
 <%-- 
-    Document   : admin-order-detail
-    Created on : Mar 10, 2025, 8:53:45 AM
-    Author     : IUHADU
+    Author     : DAT
 --%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -45,6 +43,13 @@
         .status-badge {
             font-size: 0.9rem;
             padding: 0.5rem 0.75rem;
+        }
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
         }
     </style>
 </head>
@@ -154,7 +159,15 @@
                     <h5 class="modal-title" id="editShippingModalLabel">Sửa thông tin giao hàng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="${pageContext.request.contextPath}/admin_orders" method="post">
+                
+                <!-- Hiển thị thông báo lỗi trong modal nếu có -->
+                <c:if test="${not empty requestScope.errorMessage}">
+                    <div class="alert alert-danger mx-3 mt-3">
+                        ${requestScope.errorMessage}
+                    </div>
+                </c:if>
+                
+                <form action="${pageContext.request.contextPath}/admin_orders" method="post" id="shippingForm">
                     <div class="modal-body">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="id" value="${order.orderId}">
@@ -162,15 +175,22 @@
                         
                         <div class="mb-3">
                             <label for="shippingName" class="form-label">Người nhận:</label>
-                            <input type="text" class="form-control" id="shippingName" name="shippingName" value="${order.shippingName}" required>
+                            <input type="text" class="form-control" id="shippingName" name="shippingName" 
+                                   value="${not empty requestScope.shippingName ? requestScope.shippingName : order.shippingName}" required>
                         </div>
                         <div class="mb-3">
                             <label for="shippingPhone" class="form-label">Số điện thoại:</label>
-                            <input type="text" class="form-control" id="shippingPhone" name="shippingPhone" value="${order.shippingPhone}" required>
+                            <input type="text" class="form-control ${not empty requestScope.phoneError ? 'is-invalid' : ''}" 
+                                   id="shippingPhone" name="shippingPhone" 
+                                   value="${not empty requestScope.shippingPhone ? requestScope.shippingPhone : order.shippingPhone}" 
+                                   required pattern="[0-9]{10}" maxlength="10">
+                            <div class="invalid-feedback" id="phoneError">
+                                ${not empty requestScope.phoneError ? requestScope.phoneError : 'Số điện thoại phải có đúng 10 chữ số'}
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="shippingAddress" class="form-label">Địa chỉ giao hàng:</label>
-                            <textarea class="form-control" id="shippingAddress" name="shippingAddress" rows="3" required>${order.shippingAddress}</textarea>
+                            <textarea class="form-control" id="shippingAddress" name="shippingAddress" rows="3" required>${not empty requestScope.shippingAddress ? requestScope.shippingAddress : order.shippingAddress}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -182,7 +202,59 @@
         </div>
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Hiển thị modal khi có lỗi
+        document.addEventListener('DOMContentLoaded', function() {
+            // Nếu có lỗi từ server, hiển thị modal
+            if (${not empty requestScope.errorMessage || not empty requestScope.phoneError}) {
+                var editModal = new bootstrap.Modal(document.getElementById('editShippingModal'));
+                editModal.show();
+            }
+            
+            // Validation phía client cho số điện thoại
+            const shippingForm = document.getElementById('shippingForm');
+            const phoneInput = document.getElementById('shippingPhone');
+            const phoneError = document.getElementById('phoneError');
+            
+            shippingForm.addEventListener('submit', function(event) {
+                let isValid = true;
+                
+                // Kiểm tra số điện thoại
+                const phone = phoneInput.value.trim();
+                
+                if (!phone) {
+                    phoneInput.classList.add('is-invalid');
+                    phoneError.textContent = 'Số điện thoại không được để trống';
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else if (phone.length !== 10) {
+                    phoneInput.classList.add('is-invalid');
+                    phoneError.textContent = 'Số điện thoại phải có đúng 10 ký tự';
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else if (!/^\d{10}$/.test(phone)) {
+                    phoneInput.classList.add('is-invalid');
+                    phoneError.textContent = 'Số điện thoại chỉ được chứa chữ số';
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    phoneInput.classList.remove('is-invalid');
+                    phoneError.style.display = 'none';
+                }
+                
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+            
+            // Reset validation khi người dùng thay đổi giá trị
+            phoneInput.addEventListener('input', function() {
+                phoneInput.classList.remove('is-invalid');
+                phoneError.style.display = 'none';
+            });
+        });
+    </script>
 </body>
 </html>

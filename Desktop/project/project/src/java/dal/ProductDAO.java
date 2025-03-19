@@ -1,3 +1,5 @@
+//Author: DAT, KHANH, LINH
+
 package dal;
 
 import context.DBContext;

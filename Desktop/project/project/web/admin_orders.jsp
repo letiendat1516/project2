@@ -1,7 +1,5 @@
 <%-- 
-    Document   : admin_orders
-    Created on : Mar 10, 2025, 8:23:19 AM
-    Author     : IUHADU
+    Author     : DAT
 --%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>

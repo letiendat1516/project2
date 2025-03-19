@@ -1,7 +1,5 @@
 <%-- 
-    Document   : index
-    Created on : Feb 19, 2025, 10:24:07 AM
-    Author     : IUHADU
+    Author     : DAT
 --%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>

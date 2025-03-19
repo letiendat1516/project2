@@ -1,3 +1,6 @@
+<%-- 
+    Author     : DAT, DANG
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="model.User" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -156,12 +159,12 @@
                 background: #c82333 !important;
                 transform: translateX(0) !important;
             }
-            
+
             /* Protected Admin Styles */
             .protected-admin {
                 background-color: rgba(255, 243, 205, 0.5);
             }
-            
+
             .tooltip-info {
                 cursor: help;
                 color: #17a2b8;
@@ -267,10 +270,10 @@
                             <form action="admin_users" method="post">
                                 <input type="hidden" name="action" value="${empty editUser ? 'add' : 'update'}">
                                 <input type="hidden" name="userId" value="${editUser.userId}">
-                                
+
                                 <!-- Kiểm tra xem đây có phải là tài khoản admin được bảo vệ không -->
                                 <c:set var="isProtectedAdmin" value="${editUser.email == 'tiendat1516@gmail.com'}" />
-                                
+
                                 <c:if test="${isProtectedAdmin}">
                                     <div class="alert alert-warning mb-4">
                                         <i class="bi bi-shield-lock"></i> Đây là tài khoản Admin được bảo vệ. Một số tùy chọn sẽ bị hạn chế.
@@ -295,7 +298,13 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="phone" class="form-label">Số điện thoại</label>
-                                        <input type="text" id="phone" name="phone" class="form-control" value="${editUser.phone}" required>
+                                        <input type="text" id="phone" name="phone" class="form-control ${not empty phoneError ? 'is-invalid' : ''}" 
+                                               value="${editUser.phone}" required pattern="[0-9]{10}" maxlength="10" 
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)">
+                                        <div class="invalid-feedback" id="phoneErrorMessage">
+                                            ${not empty phoneError ? phoneError : 'Số điện thoại phải có đúng 10 chữ số'}
+                                        </div>
+                                        <small class="form-text text-muted">Vui lòng nhập đúng 10 chữ số</small>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -461,39 +470,39 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
-            $(document).ready(function () {
-                $('#usersTable').DataTable({
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
-                    },
-                    columnDefs: [
-                        {orderable: false, targets: [7]} // Không cho phép sắp xếp cột thao tác
-                    ]
-                });
-                
-                // Kích hoạt tooltips
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl)
-                });
-            });
+                                                                    $(document).ready(function () {
+                                                                        $('#usersTable').DataTable({
+                                                                            language: {
+                                                                                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
+                                                                            },
+                                                                            columnDefs: [
+                                                                                {orderable: false, targets: [7]} // Không cho phép sắp xếp cột thao tác
+                                                                            ]
+                                                                        });
 
-            function confirmDelete(userId) {
-                Swal.fire({
-                    title: 'Xác nhận xóa người dùng?',
-                    text: "Bạn không thể hoàn tác sau khi xóa!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Xóa',
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'admin_users?action=delete&id=' + userId;
-                    }
-                });
-            }
+                                                                        // Kích hoạt tooltips
+                                                                        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                                                                        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                                                            return new bootstrap.Tooltip(tooltipTriggerEl)
+                                                                        });
+                                                                    });
+
+                                                                    function confirmDelete(userId) {
+                                                                        Swal.fire({
+                                                                            title: 'Xác nhận xóa người dùng?',
+                                                                            text: "Bạn không thể hoàn tác sau khi xóa!",
+                                                                            icon: 'warning',
+                                                                            showCancelButton: true,
+                                                                            confirmButtonColor: '#d33',
+                                                                            cancelButtonColor: '#3085d6',
+                                                                            confirmButtonText: 'Xóa',
+                                                                            cancelButtonText: 'Hủy'
+                                                                        }).then((result) => {
+                                                                            if (result.isConfirmed) {
+                                                                                window.location.href = 'admin_users?action=delete&id=' + userId;
+                                                                            }
+                                                                        });
+                                                                    }
         </script>
     </body>
 </html>

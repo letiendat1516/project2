@@ -1,3 +1,6 @@
+<%-- 
+    Author     : DAT, HUY
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.Properties" %>
 <%@ page import="jakarta.mail.*" %>
@@ -300,8 +303,8 @@
                 Message adminMessage = new MimeMessage(session);
                 adminMessage.setFrom(new InternetAddress(fromEmail));
                 adminMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(fromEmail)); // Gửi đến email admin
-                adminMessage.setSubject("[new contact] " + subject);
-            
+                adminMessage.setSubject(MimeUtility.encodeText("[new contact] " + subject, "UTF-8", "B"));
+         
                 String adminEmailContent = "Thông tin liên hệ mới:<br><br>"
                     + "<b>Họ và tên:</b> " + name + "<br>"
                     + "<b>Email:</b> " + email + "<br>"

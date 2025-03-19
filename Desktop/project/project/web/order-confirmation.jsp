@@ -1,7 +1,5 @@
 <%-- 
-    Document   : order-confirmation
-    Created on : Mar 9, 2025, 2:26:00 PM
-    Author     : IUHADU
+    Author     : DAT
 --%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
