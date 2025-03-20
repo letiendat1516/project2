@@ -142,6 +142,12 @@
                                     <label for="address" class="form-label">Địa chỉ giao hàng</label>
                                     <textarea class="form-control" id="address" name="address" rows="3" required>${sessionScope.user.address}</textarea>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+                                    <select class="form-control" id="paymentMethod" name="paymentMethod" required>
+                                        <option value="COD">Thanh toán khi nhận hàng (COD-Freeship)</option>
+                                    </select>
+                                </div>
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" id="place-order-btn" class="btn btn-primary">
